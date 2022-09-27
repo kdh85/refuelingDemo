@@ -51,7 +51,21 @@ class FuelStockServiceTest {
 	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트")
 	@Test
 	void decreaseStockTest() throws InterruptedException {
+		//given
+		createMultiThreadTest();
 		//when
+		FuelStock resultStockInfo = fuelStockService.findStockInfoById(fuelStock.getId());
+		log.info("resultStockInfo : {}", resultStockInfo);
+		//then
+		assertAll(
+			//잔여재고는 0이 되어야 한다.
+			() -> assertThat(resultStockInfo.getRemainStock()).isEqualTo(0L),
+			//초기재고는 100이 되어야 한다.
+			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(totalStock)
+		);
+	}
+
+	private void createMultiThreadTest() throws InterruptedException {
 		IntStream.range(0, threadCount).forEach(
 			e -> executorService.submit(
 				() -> {
@@ -66,15 +80,6 @@ class FuelStockServiceTest {
 			)
 		);
 		countDownLatch.await();
-		// then
-		FuelStock resultStockInfo = fuelStockService.findStockInfoById(1L);
-		log.info("resultStockInfo : {}", resultStockInfo);
-		assertAll(
-			//잔여재고는 0이 되어야 한다.
-			() -> assertThat(resultStockInfo.getRemainStock()).isEqualTo(0L),
-			//초기재고는 100이 되어야 한다.
-			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(100L)
-		);
 	}
 
 	@DisplayName("잔여 재고보다 초과로 사용시 에러를 반환 테스트")
@@ -82,6 +87,32 @@ class FuelStockServiceTest {
 	void overUseStockReturnErrorTest() {
 		assertThatThrownBy(
 			() -> fuelStockLockFacade.decreaseFuelStock(fuelStock.getId(), 911L)
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@DisplayName("기본 재고량 이하까지 재고충전 테스트")
+	@Test
+	void chargeRemainStockTest() throws InterruptedException {
+		//given
+		createMultiThreadTest();
+		//when
+		fuelStockService.increaseRemainStock(fuelStock.getId(), 5L);
+		//then
+		FuelStock resultStockInfo = fuelStockService.findStockInfoById(fuelStock.getId());
+		log.info("resultStockInfo : {}", resultStockInfo);
+		assertAll(
+			//잔여재고는 100을 사용한뒤 5를 충전되기 때문에 5가 되어야 한다.
+			() -> assertThat(resultStockInfo.getRemainStock()).isEqualTo(5L),
+			//초기재고는 100이 되어야 한다.
+			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(totalStock)
+		);
+	}
+
+	@DisplayName("기본 최대 재고를 초과하여 재고충전시 에럴르 반환 테스트")
+	@Test
+	void overChargeRemainStockErrorTest(){
+		assertThatThrownBy(
+			() -> fuelStockService.increaseRemainStock(fuelStock.getId(),totalStock+1)
 		).isInstanceOf(IllegalArgumentException.class);
 	}
 }
