@@ -40,6 +40,14 @@ public class FuelStock {
 		this.remainStock -= useQuantity;
 	}
 
+	public void increaseRemainStock(Long chargeQuantity) {
+		if (chargeQuantity > totalStock && chargeQuantity + this.remainStock > this.totalStock) {
+			log.error("### 최대 수량을 초과하여 재고를 채울수 없습니다.");
+			throw new IllegalArgumentException("최대 수량을 초과하여 재고를 채울수 없습니다.");
+		}
+		this.remainStock += chargeQuantity;
+	}
+
 	public static FuelStock fullStock(final Long stock) {
 		return FuelStock.builder()
 			.remainStock(stock)

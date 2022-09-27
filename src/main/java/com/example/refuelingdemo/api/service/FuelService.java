@@ -11,4 +11,6 @@ public interface FuelService {
 	FuelStock findStockInfoById(final Long id);
 
 	void deleteAllStock();
+
+	void increaseRemainStock(final Long id, final Long chargeQuantity);
 }

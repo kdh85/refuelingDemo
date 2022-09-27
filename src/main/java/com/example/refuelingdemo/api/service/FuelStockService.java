@@ -21,8 +21,7 @@ public class FuelStockService implements FuelService {
 	public void decreaseStock(final Long id, final Long useQuantity) {
 		log.info("### call decreaseStock id:{}, useQuantity:{}",id, useQuantity);
 		//변경감지를 위해 영속성 binding
-		FuelStock fuelStock = fuelStockRepository.findById(id)
-			.orElseThrow(() -> new RuntimeException("no data found"));
+		FuelStock fuelStock = getCurrentFuelStockById(id);
 		//JPA 변경감지를 통해 자동으로 update 쿼리가 발생.
 		fuelStock.decreaseStock(useQuantity);
 	}
@@ -34,13 +33,25 @@ public class FuelStockService implements FuelService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public FuelStock findStockInfoById(final Long id) {
-		return fuelStockRepository.findById(id)
-			.orElseThrow(() -> new RuntimeException("no data found"));
+		return getCurrentFuelStockById(id);
 	}
 
 	@Override
 	public void deleteAllStock() {
 		fuelStockRepository.deleteAll();
+	}
+
+	@Transactional
+	@Override
+	public void increaseRemainStock(Long id, Long chargeQuantity) {
+		FuelStock fuelStock = getCurrentFuelStockById(id);
+		fuelStock.increaseRemainStock(chargeQuantity);
+	}
+
+	private FuelStock getCurrentFuelStockById(Long id) {
+		return fuelStockRepository.findById(id)
+			.orElseThrow(() -> new RuntimeException("no data found"));
 	}
 }
