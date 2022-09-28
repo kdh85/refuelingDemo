@@ -29,7 +29,7 @@ public class FuelStockService implements FuelService {
 	@Transactional
 	@Override
 	public FuelStock createFullStock(final Long totalStock){
-		return fuelStockRepository.saveAndFlush(FuelStock.fullStock(totalStock));
+		return fuelStockRepository.save(FuelStock.fullStock(totalStock));
 	}
 
 	@Override
