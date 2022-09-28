@@ -1,17 +1,22 @@
 package com.example.refuelingdemo.api.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-@ToString
+@ToString(exclude = "fuelItem")
+@EqualsAndHashCode(callSuper = false, exclude = "fuelItem")
 @Getter
 @NoArgsConstructor
 @Entity
@@ -20,11 +25,15 @@ public class FuelStock {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "STOCK_ID")
 	private Long id;
 
 	private Long totalStock;
 
 	private Long remainStock;
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "fuelStock")
+	private FuelItem fuelItem;
 
 	@Builder
 	private FuelStock(Long totalStock, Long remainStock) {
@@ -53,5 +62,9 @@ public class FuelStock {
 			.remainStock(stock)
 			.totalStock(stock)
 			.build();
+	}
+
+	public void addItem(FuelItem fuelItem) {
+		this.fuelItem = fuelItem;
 	}
 }
