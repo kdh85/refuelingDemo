@@ -1,59 +1,18 @@
 package com.example.refuelingdemo.api.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.example.refuelingdemo.annotaion.RedisLockCheck;
 import com.example.refuelingdemo.api.domain.FuelStock;
-import com.example.refuelingdemo.api.repository.FuelStockRepository;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+public interface FuelStockService {
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class FuelStockService implements FuelService {
+	void decreaseStock(final Long id, final Long useQuantity);
 
-	private final FuelStockRepository fuelStockRepository;
+	FuelStock createFullStock(final Long totalStock);
 
-	@RedisLockCheck()
-	@Transactional
-	@Override
-	public void decreaseStock(final Long id, final Long useQuantity) {
-		log.info("### call decreaseStock id:{}, useQuantity:{}",id, useQuantity);
-		//변경감지를 위해 영속성 binding
-		FuelStock fuelStock = getCurrentFuelStockById(id);
-		//JPA 변경감지를 통해 자동으로 update 쿼리가 발생.
-		fuelStock.decreaseStock(useQuantity);
-	}
+	FuelStock findStockInfoById(final Long id);
 
-	@Transactional
-	@Override
-	public FuelStock createFullStock(final Long totalStock){
-		return fuelStockRepository.save(FuelStock.fullStock(totalStock));
-	}
+	void deleteAllStock();
 
-	@Override
-	@Transactional(readOnly = true)
-	public FuelStock findStockInfoById(final Long id) {
-		return getCurrentFuelStockById(id);
-	}
+	void increaseRemainStock(final Long id, final Long chargeQuantity);
 
-	@Override
-	public void deleteAllStock() {
-		fuelStockRepository.deleteAll();
-	}
-
-	@Transactional
-	@Override
-	public void increaseRemainStock(Long id, Long chargeQuantity) {
-		FuelStock fuelStock = getCurrentFuelStockById(id);
-		fuelStock.increaseRemainStock(chargeQuantity);
-	}
-
-	private FuelStock getCurrentFuelStockById(Long id) {
-		return fuelStockRepository.findById(id)
-			.orElseThrow(() -> new RuntimeException("no data found"));
-	}
+	void decreaseStockByAOP(Long id, Long useQuantity);
 }

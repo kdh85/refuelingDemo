@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Slf4j
-class FuelStockServiceTest {
+class FuelStockServiceImplTest {
 	private final int threadCount = 100;
 	private final long totalStock = 100L;
 	private ExecutorService executorService;
@@ -47,10 +47,10 @@ class FuelStockServiceTest {
 
 	@AfterEach
 	public void afterEach() {
-		//fuelStockService.deleteAllStock();
+		fuelStockService.deleteAllStock();
 	}
 
-	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트")
+	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트(facade 패턴버전)")
 	@Test
 	void decreaseStockTest() throws InterruptedException {
 		//given
@@ -128,7 +128,7 @@ class FuelStockServiceTest {
 					try {
 						Long useQuantity = 1L;
 						count.updateAndGet(v -> v + useQuantity);
-						fuelStockService.decreaseStock(fuelStock.getId(), useQuantity);
+						fuelStockService.decreaseStockByAOP(fuelStock.getId(), useQuantity);
 					} finally {
 						countDownLatch.countDown();
 					}

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.refuelingdemo.api.enums.SleepTime;
 import com.example.refuelingdemo.api.repository.RedisRepository;
-import com.example.refuelingdemo.api.service.FuelService;
+import com.example.refuelingdemo.api.service.FuelStockService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ public class FuelStockLockFacade {
 
 	private final RedisRepository redisRepository;
 
-	private final FuelService fuelService;
+	private final FuelStockService fuelStockService;
 
 	@SuppressWarnings("BusyWait")
 	public void decreaseFuelStock(final Long id, final Long useQuantity) throws InterruptedException {
@@ -26,7 +26,7 @@ public class FuelStockLockFacade {
 		}
 
 		try {
-			fuelService.decreaseStock(id, useQuantity);
+			fuelStockService.decreaseStock(id, useQuantity);
 		} finally {
 			redisRepository.unlock(id);
 		}
