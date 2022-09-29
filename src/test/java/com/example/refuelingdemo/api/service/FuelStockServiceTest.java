@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterEach;
@@ -16,14 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.refuelingdemo.api.domain.FuelStock;
-import com.example.refuelingdemo.config.facade.FuelStockLockFacade;
+import com.example.refuelingdemo.api.facade.FuelStockLockFacade;
 
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Slf4j
 class FuelStockServiceTest {
-	private final int threadCount = 102;
+	private final int threadCount = 100;
 	private final long totalStock = 100L;
 	private ExecutorService executorService;
 	private CountDownLatch countDownLatch;
@@ -45,7 +46,7 @@ class FuelStockServiceTest {
 
 	@AfterEach
 	public void afterEach() {
-		fuelStockService.deleteAllStock();
+		//fuelStockService.deleteAllStock();
 	}
 
 	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트")
@@ -110,9 +111,39 @@ class FuelStockServiceTest {
 
 	@DisplayName("기본 최대 재고를 초과하여 재고충전시 에럴르 반환 테스트")
 	@Test
-	void overChargeRemainStockErrorTest(){
+	void overChargeRemainStockErrorTest() {
 		assertThatThrownBy(
-			() -> fuelStockService.increaseRemainStock(fuelStock.getId(),totalStock+1)
+			() -> fuelStockService.increaseRemainStock(fuelStock.getId(), totalStock + 1)
 		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트.(aop 버전)")
+	@Test
+	void aopRedisLockTest() throws InterruptedException {
+		AtomicReference<Long> count = new AtomicReference<>(0L);
+		IntStream.range(0, threadCount).forEach(
+			e -> executorService.submit(
+				() -> {
+					try {
+						Long useQuantity = 1L;
+						count.updateAndGet(v -> v + useQuantity);
+						fuelStockService.decreaseStock(fuelStock.getId(), useQuantity);
+					} finally {
+						countDownLatch.countDown();
+					}
+				}
+			)
+		);
+		countDownLatch.await();
+		//then
+		FuelStock resultStockInfo = fuelStockService.findStockInfoById(fuelStock.getId());
+		log.info("resultStockInfo : {}",resultStockInfo);
+		log.info("count :{}",count);
+		assertAll(
+			//잔여재고는 0이 되어야 한다.
+			() -> assertThat(resultStockInfo.getRemainStock()).isEqualTo(0L),
+			//초기재고는 100이 되어야 한다.
+			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(totalStock)
+		);
 	}
 }
