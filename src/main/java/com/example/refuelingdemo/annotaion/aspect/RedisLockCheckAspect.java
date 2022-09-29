@@ -23,12 +23,12 @@ public class RedisLockCheckAspect {
 	@Pointcut("@annotation(com.example.refuelingdemo.annotaion.RedisLockCheck)")
 	private void redisLockCheck(){}
 
+	@SuppressWarnings("BusyWait")
 	@Around("redisLockCheck()&&args(id,..)")
 	public Object redisLockCheck(ProceedingJoinPoint joinPoint, Long id) {
 		log.info("### AOP redis isLock check id:{} ###",id);
 		Object returnValue = null;
 		try {
-
 			while (!redisRepository.isLock(id)) {
 				Thread.sleep(SleepTime.TIME_100.getMiles());
 			}
