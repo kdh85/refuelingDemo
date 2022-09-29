@@ -21,12 +21,13 @@ public class RedisLockCheckAspect {
 	private final RedisRepository redisRepository;
 
 	@Pointcut("@annotation(com.example.refuelingdemo.annotaion.RedisLockCheck)")
-	private void redisLockCheck(){}
+	private void redisLockCheck() {
+	}
 
 	@SuppressWarnings("BusyWait")
 	@Around("redisLockCheck()&&args(id,..)")
 	public Object redisLockCheck(ProceedingJoinPoint joinPoint, Long id) {
-		log.info("### AOP redis isLock check id:{} ###",id);
+		log.info("### AOP redis isLock check id:{} ###", id);
 		Object returnValue = null;
 		try {
 			while (!redisRepository.isLock(id)) {
@@ -37,7 +38,7 @@ public class RedisLockCheckAspect {
 			log.error(e.getMessage());
 		} finally {
 			redisRepository.unlock(id);
-			log.info("### AOP redis unlock id:{} ###",id);
+			log.info("### AOP redis unlock id:{} ###", id);
 		}
 		return returnValue;
 	}
