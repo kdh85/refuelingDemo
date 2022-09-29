@@ -1,4 +1,4 @@
-package com.example.refuelingdemo.config.facade;
+package com.example.refuelingdemo.api.facade;
 
 import org.springframework.stereotype.Component;
 
