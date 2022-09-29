@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -118,7 +119,7 @@ class FuelStockServiceTest {
 	}
 
 	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트.(aop 버전)")
-	@Test
+	@RepeatedTest(value = 10, name = "{displayName} : {currentRepetition}/{totalRepetitions}")
 	void aopRedisLockTest() throws InterruptedException {
 		AtomicReference<Long> count = new AtomicReference<>(0L);
 		IntStream.range(0, threadCount).forEach(
