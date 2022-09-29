@@ -2,6 +2,7 @@ package com.example.refuelingdemo.api.facade;
 
 import org.springframework.stereotype.Component;
 
+import com.example.refuelingdemo.annotaion.ExeTimer;
 import com.example.refuelingdemo.api.enums.SleepTime;
 import com.example.refuelingdemo.api.repository.RedisRepository;
 import com.example.refuelingdemo.api.service.FuelStockService;
@@ -19,6 +20,7 @@ public class FuelStockLockFacade {
 	private final FuelStockService fuelStockService;
 
 	@SuppressWarnings("BusyWait")
+	@ExeTimer
 	public void decreaseFuelStock(final Long id, final Long useQuantity) throws InterruptedException {
 		log.info("### call FuelStockLockFacade id:{}, useQuantity:{}", id, useQuantity);
 		while (!redisRepository.isLock(id)) {

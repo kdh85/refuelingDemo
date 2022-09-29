@@ -3,6 +3,7 @@ package com.example.refuelingdemo.api.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.refuelingdemo.annotaion.ExeTimer;
 import com.example.refuelingdemo.annotaion.RedisLockCheck;
 import com.example.refuelingdemo.api.domain.FuelStock;
 import com.example.refuelingdemo.api.repository.FuelStockRepository;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FuelStockServiceImpl implements FuelStockService {
 
 	private final FuelStockRepository fuelStockRepository;
+
 
 	@Transactional
 	@Override
@@ -55,7 +57,7 @@ public class FuelStockServiceImpl implements FuelStockService {
 		FuelStock fuelStock = getCurrentFuelStockById(id);
 		fuelStock.increaseRemainStock(chargeQuantity);
 	}
-
+	@ExeTimer
 	@RedisLockCheck
 	@Transactional
 	@Override
