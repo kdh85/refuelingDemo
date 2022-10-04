@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.enums.PropertyType;
 import com.example.refuelingdemo.common.repository.PropertiesRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,16 +20,16 @@ public class PropertiesService {
 	private final PropertiesRepository propertiesRepository;
 
 	@Transactional
-	public Properties createParentProperties(final String description, final String settingValue){
+	public Properties createParentProperties(final PropertyType propertyType, final String description, final String settingValue){
 		return propertiesRepository.save(
-			Properties.createParentProperties(description, settingValue)
+			Properties.createParentProperties(propertyType, description, settingValue)
 		);
 	}
 
 	@Transactional
-	public void createChildProperties(final String description, final String settingValue, Properties parent){
+	public void createChildProperties(final PropertyType propertyType, final String description, final String settingValue, Properties parent){
 		propertiesRepository.save(
-			Properties.createChildProperties(description, settingValue, parent)
+			Properties.createChildProperties(propertyType, description, settingValue, parent)
 		);
 	}
 

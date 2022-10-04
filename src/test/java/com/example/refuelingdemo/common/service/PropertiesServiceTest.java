@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.enums.PropertyType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,12 +28,16 @@ class PropertiesServiceTest {
 	@Test
 	@Transactional
 	void createParentTest() {
+		//given
+		PropertyType propertyType = PropertyType.LATENCY;
 		String parentDesc = "latency";
 		String parentSetValue = "latencyValue";
-
-		Properties parentProperties = propertiesService.createParentProperties(parentDesc, parentSetValue);
-
+		//when
+		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+			parentSetValue);
+		//then
 		assertAll(
+			() -> assertEquals(parentProperties.getPropertyType(), propertyType),
 			() -> assertEquals(parentProperties.getDescription(), parentDesc),
 			() -> assertEquals(parentProperties.getSettingValue(), parentSetValue)
 		);
@@ -43,14 +48,16 @@ class PropertiesServiceTest {
 	@Transactional
 	void createParentAndChildTest() {
 		//given
+		PropertyType propertyType = PropertyType.LATENCY;
 		String parentDesc = "latency";
 		String parentSetValue = "latencyValue";
 		String childDesc = "sleep_3000";
 		String childSetValue = "3000";
 
 		//when
-		Properties parentProperties = propertiesService.createParentProperties(parentDesc, parentSetValue);
-		propertiesService.createChildProperties(childDesc, childSetValue, parentProperties);
+		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+			parentSetValue);
+		propertiesService.createChildProperties(propertyType, childDesc, childSetValue, parentProperties);
 
 		//then
 		Properties findChild = propertiesService.findByDescription(childDesc);
@@ -70,12 +77,13 @@ class PropertiesServiceTest {
 	@Transactional
 	void createChildFailTest() {
 		//given
+		PropertyType propertyType = PropertyType.LATENCY;
 		String childDesc = "sleep_3000";
 		String childSetValue = "3000";
 
 		//then
 		assertThatThrownBy(
-			() -> propertiesService.createChildProperties(childDesc, childSetValue, null)
+			() -> propertiesService.createChildProperties(propertyType, childDesc, childSetValue, null)
 		).isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -83,16 +91,18 @@ class PropertiesServiceTest {
 	@Test
 	void createChildBulkSTest() {
 		//given
+		PropertyType propertyType = PropertyType.LATENCY;
 		String parentDesc = "latency";
 		String parentSetValue = "latencyValue";
 		String childDesc = "sleep";
 		List<String> childrenSetValue = List.of("100", "150", "200", "3000");
 
 		//when
-		Properties parentProperties = propertiesService.createParentProperties(parentDesc, parentSetValue);
+		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+			parentSetValue);
 
 		List<Properties> children = childrenSetValue.stream()
-			.map(val -> Properties.createChildProperties(childDesc, val, parentProperties))
+			.map(val -> Properties.createChildProperties(propertyType, childDesc, val, parentProperties))
 			.collect(Collectors.toList());
 
 		log.info("children :{}", children);
