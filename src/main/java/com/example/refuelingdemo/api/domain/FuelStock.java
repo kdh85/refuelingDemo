@@ -1,11 +1,15 @@
 package com.example.refuelingdemo.api.domain;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import lombok.Builder;
@@ -15,13 +19,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-@ToString(exclude = "fuelItem")
-@EqualsAndHashCode(callSuper = false, exclude = "fuelItem")
+@ToString(exclude = {"fuelItem", "fuelStockHistory"})
+@EqualsAndHashCode(callSuper = false, exclude = {"fuelItem", "fuelStockHistory"})
 @Getter
 @NoArgsConstructor
 @Entity
 @Slf4j
-public class FuelStock {
+public class FuelStock extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +38,9 @@ public class FuelStock {
 
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "fuelStock")
 	private FuelItem fuelItem;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "fuelStock", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<FuelStockHistory> fuelStockHistory;
 
 	@Builder
 	private FuelStock(Long totalStock, Long remainStock) {
