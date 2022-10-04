@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
+import com.example.refuelingdemo.api.domain.BaseWriter;
+import com.example.refuelingdemo.common.enums.PropertyType;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -25,11 +30,15 @@ import lombok.ToString;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Properties {
+public class Properties extends BaseWriter {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Enumerated(EnumType.STRING)
+	private PropertyType propertyType;
+
 	private String description;
 
 	private String settingValue;
@@ -43,23 +52,27 @@ public class Properties {
 	private List<Properties> child = new ArrayList<>();
 
 	@Builder
-	public Properties(String description, String settingValue, Properties parent, List<Properties> child) {
+	public Properties(PropertyType propertyType, String description, String settingValue, Properties parent,
+		List<Properties> child) {
+		this.propertyType = propertyType;
 		this.description = description;
 		this.settingValue = settingValue;
 		this.parent = parent;
 		this.child = child;
 	}
 
-	public static Properties createParentProperties(final String description, final String settingValue) {
+	public static Properties createParentProperties(final PropertyType propertyType, final String description, final String settingValue) {
 		return Properties.builder()
+			.propertyType(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build();
 	}
 
-	public static Properties createChildProperties(final String description, final String settingValue,
+	public static Properties createChildProperties(final PropertyType propertyType, final String description, final String settingValue,
 		final Properties parent) {
 		return Properties.builder()
+			.propertyType(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build()

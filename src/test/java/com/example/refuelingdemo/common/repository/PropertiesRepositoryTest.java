@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.enums.PropertyType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,9 +24,10 @@ class PropertiesRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
+		PropertyType propertyType = PropertyType.LATENCY;
 		String parentDesc = "latency";
 		String parentSetValue = "latencyValue";
-		parent = Properties.createParentProperties(parentDesc, parentSetValue);
+		parent = Properties.createParentProperties(propertyType, parentDesc, parentSetValue);
 		propertiesRepository.save(parent);
 	}
 
@@ -33,7 +35,8 @@ class PropertiesRepositoryTest {
 	@CsvSource(value = {"sleep3000:3000"}, delimiter = ':')
 	void createChildTest(String childSetValue, String childDesc) {
 		//given
-		Properties child = Properties.createChildProperties(childDesc, childSetValue, parent);
+		PropertyType propertyType = PropertyType.LATENCY;
+		Properties child = Properties.createChildProperties(propertyType, childDesc, childSetValue, parent);
 		//when
 		Properties result = propertiesRepository.save(child);
 		//then
