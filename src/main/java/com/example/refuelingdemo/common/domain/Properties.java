@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString(exclude = {"child"})
-@EqualsAndHashCode(callSuper = false, exclude = {"child"})
+@ToString(exclude = {"parent", "child"})
+@EqualsAndHashCode(callSuper = false, exclude = {"parent", "child"})
 @Getter
 @Entity
 @NoArgsConstructor
@@ -67,7 +67,7 @@ public class Properties {
 	}
 
 	private Properties addChildProperties(Properties parent) {
-		if(Optional.ofNullable(parent).isPresent()) {
+		if (Optional.ofNullable(parent).isPresent()) {
 			this.parent = parent;
 			parent.setChild(List.of(this));
 			return this;
@@ -75,7 +75,7 @@ public class Properties {
 		throw new IllegalArgumentException("부모값이 null일 수 없습니다.");
 	}
 
-	public Long getSettingValueByLong(){
+	public Long getSettingValueByLong() {
 		return Long.parseLong(this.settingValue);
 	}
 }
