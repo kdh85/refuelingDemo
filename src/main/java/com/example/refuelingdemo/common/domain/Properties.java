@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,7 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.example.refuelingdemo.api.domain.BaseWriter;
-import com.example.refuelingdemo.common.enums.PropertyType;
+import com.example.refuelingdemo.common.domain.converter.TypeConverter;
+import com.example.refuelingdemo.common.enums.Type;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -36,8 +36,8 @@ public class Properties extends BaseWriter {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Enumerated(EnumType.STRING)
-	private PropertyType propertyType;
+	@Convert(converter = TypeConverter.class)
+	private Type type;
 
 	private String description;
 
@@ -52,27 +52,27 @@ public class Properties extends BaseWriter {
 	private List<Properties> child = new ArrayList<>();
 
 	@Builder
-	public Properties(PropertyType propertyType, String description, String settingValue, Properties parent,
+	public Properties(Type type, String description, String settingValue, Properties parent,
 		List<Properties> child) {
-		this.propertyType = propertyType;
+		this.type = type;
 		this.description = description;
 		this.settingValue = settingValue;
 		this.parent = parent;
 		this.child = child;
 	}
 
-	public static Properties createParentProperties(final PropertyType propertyType, final String description, final String settingValue) {
+	public static Properties createParentProperties(final Type propertyType, final String description, final String settingValue) {
 		return Properties.builder()
-			.propertyType(propertyType)
+			.type(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build();
 	}
 
-	public static Properties createChildProperties(final PropertyType propertyType, final String description, final String settingValue,
+	public static Properties createChildProperties(final Type propertyType, final String description, final String settingValue,
 		final Properties parent) {
 		return Properties.builder()
-			.propertyType(propertyType)
+			.type(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build()
