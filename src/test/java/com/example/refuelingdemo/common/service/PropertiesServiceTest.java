@@ -37,7 +37,7 @@ class PropertiesServiceTest {
 			parentSetValue);
 		//then
 		assertAll(
-			() -> assertEquals(parentProperties.getPropertyType(), propertyType),
+			() -> assertEquals(parentProperties.getType(), propertyType),
 			() -> assertEquals(parentProperties.getDescription(), parentDesc),
 			() -> assertEquals(parentProperties.getSettingValue(), parentSetValue)
 		);
