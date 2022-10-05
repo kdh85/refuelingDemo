@@ -5,8 +5,6 @@ import java.time.Duration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.refuelingdemo.api.enums.SleepTime;
-
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -17,9 +15,9 @@ public class RedisRepository {
 
 	private final RedisTemplate<String, String> redisTemplate;
 
-	public Boolean isLock(final Long key) {
+	public Boolean isLock(final Long key, Long delay) {
 		return redisTemplate.opsForValue()
-			.setIfAbsent(key.toString(), LOCK, Duration.ofMillis(SleepTime.TIME_3000.getMiles()));
+			.setIfAbsent(key.toString(), LOCK, Duration.ofMillis(delay));
 	}
 
 	public void unlock(final Long key) {
