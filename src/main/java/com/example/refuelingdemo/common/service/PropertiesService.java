@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.refuelingdemo.common.domain.Properties;
 import com.example.refuelingdemo.common.enums.PropertyType;
+import com.example.refuelingdemo.common.enums.Type;
 import com.example.refuelingdemo.common.repository.PropertiesRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -46,5 +47,10 @@ public class PropertiesService {
 	@Transactional(readOnly = true)
 	public List<Properties> findByParentId(final Long parentId){
 		return propertiesRepository.findAllByParentId(parentId);
+	}
+
+	@Transactional(readOnly = true)
+	public List<Properties> findAllByPropertyType(final Type type){
+		return propertiesRepository.findAllByTypeAndParentIsNull(type);
 	}
 }
