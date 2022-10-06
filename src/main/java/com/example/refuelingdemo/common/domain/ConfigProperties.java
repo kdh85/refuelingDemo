@@ -30,14 +30,14 @@ import lombok.ToString;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Properties extends BaseWriter {
+public class ConfigProperties extends BaseWriter {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Convert(converter = TypeConverter.class)
-	private Type type;
+	private Type propertyType;
 
 	private String description;
 
@@ -45,41 +45,41 @@ public class Properties extends BaseWriter {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PARENT_ID")
-	private Properties parent;
+	private ConfigProperties parent;
 
 	@Setter
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-	private List<Properties> child = new ArrayList<>();
+	private List<ConfigProperties> child = new ArrayList<>();
 
 	@Builder
-	public Properties(Type type, String description, String settingValue, Properties parent,
-		List<Properties> child) {
-		this.type = type;
+	public ConfigProperties(Type propertyType, String description, String settingValue, ConfigProperties parent,
+		List<ConfigProperties> child) {
+		this.propertyType = propertyType;
 		this.description = description;
 		this.settingValue = settingValue;
 		this.parent = parent;
 		this.child = child;
 	}
 
-	public static Properties createParentProperties(final Type propertyType, final String description, final String settingValue) {
-		return Properties.builder()
-			.type(propertyType)
+	public static ConfigProperties createParentProperties(final Type propertyType, final String description, final String settingValue) {
+		return ConfigProperties.builder()
+			.propertyType(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build();
 	}
 
-	public static Properties createChildProperties(final Type propertyType, final String description, final String settingValue,
-		final Properties parent) {
-		return Properties.builder()
-			.type(propertyType)
+	public static ConfigProperties createChildProperties(final Type propertyType, final String description, final String settingValue,
+		final ConfigProperties parent) {
+		return ConfigProperties.builder()
+			.propertyType(propertyType)
 			.description(description)
 			.settingValue(settingValue)
 			.build()
 			.addChildProperties(parent);
 	}
 
-	private Properties addChildProperties(Properties parent) {
+	private ConfigProperties addChildProperties(ConfigProperties parent) {
 		if (Optional.ofNullable(parent).isPresent()) {
 			this.parent = parent;
 			parent.setChild(List.of(this));

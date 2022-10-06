@@ -12,14 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.domain.ConfigProperties;
 import com.example.refuelingdemo.common.enums.PropertyType;
 
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Slf4j
-class PropertiesServiceTest {
+class ConfigPropertiesServiceTest {
 
 	@Autowired
 	private PropertiesService propertiesService;
@@ -33,13 +33,13 @@ class PropertiesServiceTest {
 		String parentDesc = "latency";
 		String parentSetValue = "latencyValue";
 		//when
-		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+		ConfigProperties parentConfigProperties = propertiesService.createParentProperties(propertyType, parentDesc,
 			parentSetValue);
 		//then
 		assertAll(
-			() -> assertEquals(parentProperties.getType(), propertyType),
-			() -> assertEquals(parentProperties.getDescription(), parentDesc),
-			() -> assertEquals(parentProperties.getSettingValue(), parentSetValue)
+			() -> assertEquals(parentConfigProperties.getPropertyType(), propertyType),
+			() -> assertEquals(parentConfigProperties.getDescription(), parentDesc),
+			() -> assertEquals(parentConfigProperties.getSettingValue(), parentSetValue)
 		);
 	}
 
@@ -55,12 +55,12 @@ class PropertiesServiceTest {
 		String childSetValue = "3000";
 
 		//when
-		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+		ConfigProperties parentConfigProperties = propertiesService.createParentProperties(propertyType, parentDesc,
 			parentSetValue);
-		propertiesService.createChildProperties(propertyType, childDesc, childSetValue, parentProperties);
+		propertiesService.createChildProperties(propertyType, childDesc, childSetValue, parentConfigProperties);
 
 		//then
-		Properties findChild = propertiesService.findByDescription(childDesc);
+		ConfigProperties findChild = propertiesService.findByDescription(childDesc);
 		log.info("findChild :{}", findChild);
 
 		assertAll(
@@ -98,11 +98,11 @@ class PropertiesServiceTest {
 		List<String> childrenSetValue = List.of("100", "150", "200", "3000");
 
 		//when
-		Properties parentProperties = propertiesService.createParentProperties(propertyType, parentDesc,
+		ConfigProperties parentConfigProperties = propertiesService.createParentProperties(propertyType, parentDesc,
 			parentSetValue);
 
-		List<Properties> children = childrenSetValue.stream()
-			.map(val -> Properties.createChildProperties(propertyType, childDesc, val, parentProperties))
+		List<ConfigProperties> children = childrenSetValue.stream()
+			.map(val -> ConfigProperties.createChildProperties(propertyType, childDesc, val, parentConfigProperties))
 			.collect(Collectors.toList());
 
 		log.info("children :{}", children);
@@ -110,26 +110,26 @@ class PropertiesServiceTest {
 		propertiesService.createBulkChildProperties(children);
 
 		//then
-		List<Properties> findChild = propertiesService.findByParentId(parentProperties.getId());
+		List<ConfigProperties> findChild = propertiesService.findByParentId(parentConfigProperties.getId());
 		log.info("findChild :{}", findChild);
 
 		List<String> allDesc = children.stream()
-			.map(Properties::getDescription)
+			.map(ConfigProperties::getDescription)
 			.collect(Collectors.toList());
 
 		List<String> allSetValue = children.stream()
-			.map(Properties::getSettingValue)
+			.map(ConfigProperties::getSettingValue)
 			.collect(Collectors.toList());
 
 		List<Long> allSetValueAsLong = children.stream()
-			.map(Properties::getSettingValueByLong)
+			.map(ConfigProperties::getSettingValueByLong)
 			.collect(Collectors.toList());
 
-		for (Properties properties : findChild) {
+		for (ConfigProperties configProperties : findChild) {
 			assertAll(
-				() -> assertThat(allDesc).contains(properties.getDescription()),
-				() -> assertThat(allSetValue).contains(properties.getSettingValue()),
-				() -> assertThat(allSetValueAsLong).contains(properties.getSettingValueByLong())
+				() -> assertThat(allDesc).contains(configProperties.getDescription()),
+				() -> assertThat(allSetValue).contains(configProperties.getSettingValue()),
+				() -> assertThat(allSetValueAsLong).contains(configProperties.getSettingValueByLong())
 			);
 		}
 	}
