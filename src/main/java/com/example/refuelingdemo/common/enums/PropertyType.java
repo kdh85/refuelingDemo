@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PropertyType implements Type{
-	LATENCY("지연시간 설정값", Arrays.asList(DelayType.LOCK_DELAY, DelayType.SPIN_LOCK_DELAY));
+	LATENCY("지연시간 설정값", Arrays.asList(DelayType.LOCK_DELAY, DelayType.SPIN_LOCK_DELAY, DelayType.TRY_LOCK_DELAY));
 
 	private final String description;
 

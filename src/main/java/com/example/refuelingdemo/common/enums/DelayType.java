@@ -9,7 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DelayType implements Type{
 	SPIN_LOCK_DELAY(SleepTime.TIME_250),
-	LOCK_DELAY(SleepTime.TIME_3000);
+	LOCK_DELAY(SleepTime.TIME_3000),
+	TRY_LOCK_DELAY(SleepTime.TIME_10)
+	;
 
 	private final SleepTime sleepTime;
 
