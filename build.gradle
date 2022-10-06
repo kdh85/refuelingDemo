@@ -25,6 +25,8 @@ dependencies {
     implementation('it.ozimov:embedded-redis:0.7.3') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
+    implementation 'org.redisson:redisson-spring-boot-starter:3.16.3'
+
     // for QueryDSL
     implementation group: 'com.querydsl', name: 'querydsl-jpa'
     implementation group: 'com.querydsl', name: 'querydsl-apt'
