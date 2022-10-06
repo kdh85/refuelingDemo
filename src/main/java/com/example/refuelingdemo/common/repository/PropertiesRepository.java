@@ -6,15 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.refuelingdemo.common.domain.Properties;
-import com.example.refuelingdemo.common.enums.Type;
+import com.example.refuelingdemo.common.domain.ConfigProperties;
 
-public interface PropertiesRepository extends JpaRepository<Properties, Long> {
+public interface PropertiesRepository extends JpaRepository<ConfigProperties, Long>, PropertiesRepositoryCustom {
 
-	Properties findByDescription(final String description);
+	ConfigProperties findByDescription(final String description);
 
-	@Query("select p from Properties p where p.parent.id= :parentId")
-	List<Properties> findAllByParentId(@Param("parentId") final Long parentId);
-
-	List<Properties> findAllByTypeAndParentIsNull(Type type);
+	@Query(value = "select p from ConfigProperties p where p.parent.id= :parentId")
+	List<ConfigProperties> findAllByParentId(@Param("parentId") final Long parentId);
 }
