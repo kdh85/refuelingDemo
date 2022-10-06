@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.refuelingdemo.annotaion.ExeTimer;
 import com.example.refuelingdemo.annotaion.RedisLockCheck;
+import com.example.refuelingdemo.annotaion.RedissonLockCheck;
 import com.example.refuelingdemo.api.domain.FuelStock;
 import com.example.refuelingdemo.api.domain.FuelStockHistory;
 import com.example.refuelingdemo.api.repository.FuelStockHistoryRepository;
@@ -89,6 +90,14 @@ public class FuelStockServiceImpl implements FuelStockService {
 		fuelStockRepository.delete(fuelStock);
 		//재고 삭제 내역 저장.
 		fuelStockHistoryRepository.delete(FuelStockHistory.removeStockHistory(fuelStock));
+	}
+
+	@ExeTimer
+	@RedissonLockCheck
+	@Transactional
+	@Override
+	public void decreaseStockByAOPV2(Long id, Long useQuantity) {
+		this.decreaseStock(id, useQuantity);
 	}
 
 }

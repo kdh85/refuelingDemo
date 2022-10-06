@@ -17,4 +17,6 @@ public interface FuelStockService {
 	void decreaseStockByAOP(Long id, Long useQuantity);
 
 	void removeStock(final Long id);
+
+	void decreaseStockByAOPV2(Long id, Long useQuantity);
 }

@@ -147,4 +147,33 @@ class FuelStockServiceImplTest {
 			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(totalStock)
 		);
 	}
+	@DisplayName("멀티쓰레드 환경에서 redisson을 사용한 재고 감소에 대한 동시성 테스트.(aop 버전)")
+	@RepeatedTest(value = 10, name = "{displayName} : {currentRepetition}/{totalRepetitions}")
+	void aopRedissonLockTest() throws InterruptedException {
+		AtomicReference<Long> count = new AtomicReference<>(0L);
+		IntStream.range(0, threadCount).forEach(
+			e -> executorService.submit(
+				() -> {
+					try {
+						Long useQuantity = 1L;
+						count.updateAndGet(v -> v + useQuantity);
+						fuelStockService.decreaseStockByAOPV2(fuelStock.getId(), useQuantity);
+					} finally {
+						countDownLatch.countDown();
+					}
+				}
+			)
+		);
+		countDownLatch.await();
+		//then
+		FuelStock resultStockInfo = fuelStockService.findStockInfoById(fuelStock.getId());
+		log.info("resultStockInfo : {}",resultStockInfo);
+		log.info("count :{}",count);
+		assertAll(
+			//잔여재고는 0이 되어야 한다.
+			() -> assertThat(resultStockInfo.getRemainStock()).isEqualTo(0L),
+			//초기재고는 100이 되어야 한다.
+			() -> assertThat(resultStockInfo.getTotalStock()).isEqualTo(totalStock)
+		);
+	}
 }
