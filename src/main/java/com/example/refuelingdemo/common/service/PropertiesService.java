@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.domain.ConfigProperties;
+import com.example.refuelingdemo.common.dto.ResponsePropertiesDto;
 import com.example.refuelingdemo.common.enums.PropertyType;
 import com.example.refuelingdemo.common.enums.Type;
 import com.example.refuelingdemo.common.repository.PropertiesRepository;
@@ -21,36 +22,36 @@ public class PropertiesService {
 	private final PropertiesRepository propertiesRepository;
 
 	@Transactional
-	public Properties createParentProperties(final PropertyType propertyType, final String description, final String settingValue){
+	public ConfigProperties createParentProperties(final PropertyType propertyType, final String description, final String settingValue){
 		return propertiesRepository.save(
-			Properties.createParentProperties(propertyType, description, settingValue)
+			ConfigProperties.createParentProperties(propertyType, description, settingValue)
 		);
 	}
 
 	@Transactional
-	public void createChildProperties(final PropertyType propertyType, final String description, final String settingValue, Properties parent){
+	public void createChildProperties(final PropertyType propertyType, final String description, final String settingValue, ConfigProperties parent){
 		propertiesRepository.save(
-			Properties.createChildProperties(propertyType, description, settingValue, parent)
+			ConfigProperties.createChildProperties(propertyType, description, settingValue, parent)
 		);
 	}
 
 	@Transactional
-	public void createBulkChildProperties(List<Properties> children){
+	public void createBulkChildProperties(List<ConfigProperties> children){
 		propertiesRepository.saveAll(children);
 	}
 
 	@Transactional(readOnly = true)
-	public Properties findByDescription(final String description){
+	public ConfigProperties findByDescription(final String description){
 		return propertiesRepository.findByDescription(description);
 	}
 
 	@Transactional(readOnly = true)
-	public List<Properties> findByParentId(final Long parentId){
+	public List<ConfigProperties> findByParentId(final Long parentId){
 		return propertiesRepository.findAllByParentId(parentId);
 	}
 
 	@Transactional(readOnly = true)
-	public List<Properties> findAllByPropertyType(final Type type){
-		return propertiesRepository.findAllByTypeAndParentIsNull(type);
+	public List<ResponsePropertiesDto> findAllChildByParentType(final Type type){
+		return propertiesRepository.findAllChildByParentType(type);
 	}
 }

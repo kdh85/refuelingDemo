@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.refuelingdemo.api.enums.SleepTime;
 import com.example.refuelingdemo.api.repository.RedisRepository;
-import com.example.refuelingdemo.common.domain.Properties;
+import com.example.refuelingdemo.common.dto.ResponsePropertiesDto;
 import com.example.refuelingdemo.common.enums.DelayType;
 import com.example.refuelingdemo.common.service.PropertiesService;
 
@@ -40,17 +40,17 @@ public class RedisLockCheckAspect {
 		Object returnValue = null;
 		try {
 
-			List<Properties> properties = propertiesService.findAllByPropertyType(LATENCY);
+			List<ResponsePropertiesDto> allChildByParentType = propertiesService.findAllChildByParentType(LATENCY);
 
-			Long lockDelay = properties.stream()
-				.filter(p -> p.getType() == DelayType.LOCK_DELAY)
-				.map(Properties::getSettingValueByLong)
+			Long lockDelay = allChildByParentType.stream()
+				.filter(p -> p.getPropertyType() == DelayType.LOCK_DELAY)
+				.map(ResponsePropertiesDto::getSettingValueByLong)
 				.findFirst()
 				.orElse(SleepTime.TIME_3000.getMiles());
 
-			Long spinDelay = properties.stream()
-				.filter(p -> p.getType() == DelayType.SPIN_LOCK_DELAY)
-				.map(Properties::getSettingValueByLong)
+			Long spinDelay = allChildByParentType.stream()
+				.filter(p -> p.getPropertyType() == DelayType.SPIN_LOCK_DELAY)
+				.map(ResponsePropertiesDto::getSettingValueByLong)
 				.findFirst()
 				.orElse(SleepTime.TIME_200.getMiles());
 
