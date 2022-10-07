@@ -54,7 +54,7 @@ public class RedissonLockCheckAspect {
 
 			log.info("## redisson lock delay set:{}", lockDelay);
 
-			while (lock.tryLock(lockDelay, lockDelay, TimeUnit.MILLISECONDS)) {
+			while (lock.tryLock(0, lockDelay, TimeUnit.MILLISECONDS)) {
 				returnValue = joinPoint.proceed();
 			}
 
