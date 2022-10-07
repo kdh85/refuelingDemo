@@ -1,5 +1,6 @@
 package com.example.refuelingdemo.api.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -40,7 +41,7 @@ public class FuelStock extends BaseTime {
 	private FuelItem fuelItem;
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "fuelStock", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<FuelStockHistory> fuelStockHistory;
+	private final List<FuelStockHistory> fuelStockHistory = new ArrayList<>();
 
 	@Builder
 	private FuelStock(Long totalStock, Long remainStock) {
