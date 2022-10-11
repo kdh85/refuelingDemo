@@ -10,7 +10,7 @@ import lombok.Getter;
 public enum DelayType implements Type{
 	SPIN_LOCK_DELAY(SleepTime.TIME_250),
 	LOCK_DELAY(SleepTime.TIME_3000),
-	TRY_LOCK_DELAY(SleepTime.TIME_10)
+	TRY_LOCK_DELAY(SleepTime.TIME_2000)
 	;
 
 	private final SleepTime sleepTime;
