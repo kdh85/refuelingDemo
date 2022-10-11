@@ -42,19 +42,9 @@ public class RedisLockCheckAspect {
 
 			List<ResponsePropertiesDto> allChildByParentType = propertiesService.findAllChildByParentType(LATENCY);
 
-			Long lockDelay = allChildByParentType.stream()
-				.filter(p -> p.getPropertyType() == DelayType.LOCK_DELAY)
-				.map(ResponsePropertiesDto::getSettingValueByLong)
-				.findFirst()
-				.orElse(SleepTime.TIME_3000.getMiles());
-
-			Long spinDelay = allChildByParentType.stream()
-				.filter(p -> p.getPropertyType() == DelayType.SPIN_LOCK_DELAY)
-				.map(ResponsePropertiesDto::getSettingValueByLong)
-				.findFirst()
-				.orElse(SleepTime.TIME_200.getMiles());
-
+			Long lockDelay = getLockDelay(allChildByParentType);
 			log.info("## redis lock delay set:{}",lockDelay);
+			Long spinDelay = getSpinDelay(allChildByParentType);
 			log.info("## redis spin lock delay set:{}",spinDelay);
 
 			while (!redisRepository.isLock(id, lockDelay)) {
@@ -68,5 +58,21 @@ public class RedisLockCheckAspect {
 			log.info("### AOP redis unlock id:{} ###", id);
 		}
 		return returnValue;
+	}
+
+	private static Long getSpinDelay(List<ResponsePropertiesDto> allChildByParentType) {
+		return allChildByParentType.stream()
+			.filter(p -> p.getPropertyType() == DelayType.SPIN_LOCK_DELAY)
+			.map(ResponsePropertiesDto::getSettingValueByLong)
+			.findFirst()
+			.orElse(SleepTime.TIME_200.getMiles());
+	}
+
+	private static Long getLockDelay(List<ResponsePropertiesDto> allChildByParentType) {
+		return allChildByParentType.stream()
+			.filter(p -> p.getPropertyType() == DelayType.LOCK_DELAY)
+			.map(ResponsePropertiesDto::getSettingValueByLong)
+			.findFirst()
+			.orElse(SleepTime.TIME_3000.getMiles());
 	}
 }
