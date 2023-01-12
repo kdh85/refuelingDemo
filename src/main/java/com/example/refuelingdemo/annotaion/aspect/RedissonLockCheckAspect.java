@@ -1,9 +1,5 @@
 package com.example.refuelingdemo.annotaion.aspect;
 
-import com.example.refuelingdemo.api.enums.SleepTime;
-import com.example.refuelingdemo.common.dto.ResponsePropertiesDto;
-import com.example.refuelingdemo.common.enums.DelayType;
-import com.example.refuelingdemo.common.service.PropertiesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,7 +10,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Aspect
@@ -25,13 +20,10 @@ public class RedissonLockCheckAspect {
 
     private final RedissonClient redissonClient;
 
-    private final PropertiesService propertiesService;
-
     @Pointcut("@annotation(com.example.refuelingdemo.annotaion.RedissonLockCheck)")
     private void redissonLockCheck() {
     }
 
-    @SuppressWarnings("BusyWait")
     @Around("redissonLockCheck()&&args(id,..)")
     public Object redissonLockCheck(ProceedingJoinPoint joinPoint, Long id) {
 
