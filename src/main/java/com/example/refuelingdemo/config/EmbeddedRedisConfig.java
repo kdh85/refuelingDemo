@@ -28,7 +28,9 @@ public class EmbeddedRedisConfig {
 	@PostConstruct
 	@DependsOn("redissonClient")
 	public void redisServerStart() {
-		redisServer = new RedisServer();
+		redisServer = RedisServer.builder()
+				.setting("maxmemory 128M")
+				.build();
 		redisServer.start();
 		log.info("#### embedded redis start  port :{} #######",port);
 	}

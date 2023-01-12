@@ -1,7 +1,12 @@
 package com.example.refuelingdemo.api.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.refuelingdemo.api.domain.FuelStock;
+import com.example.refuelingdemo.api.facade.FuelStockLockFacade;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -9,20 +14,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import com.example.refuelingdemo.api.domain.FuelStock;
-import com.example.refuelingdemo.api.facade.FuelStockLockFacade;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
+@Profile("local")
 @Slf4j
 class FuelStockServiceImplTest {
 	private final int threadCount = 100;
@@ -38,8 +35,7 @@ class FuelStockServiceImplTest {
 
 	@BeforeEach
 	void beforeEach() {
-
-		fuelStock = fuelStockService.createFullStock(totalStock);
+		 fuelStock = fuelStockService.createFullStock(totalStock);
 
 		executorService = Executors.newFixedThreadPool(threadCount);
 		countDownLatch = new CountDownLatch(threadCount);
@@ -121,6 +117,7 @@ class FuelStockServiceImplTest {
 	@DisplayName("멀티쓰레드 환경에서 redis를 사용한 재고 감소에 대한 동시성 테스트.(aop 버전)")
 	@RepeatedTest(value = 10, name = "{displayName} : {currentRepetition}/{totalRepetitions}")
 	void aopRedisLockTest() throws InterruptedException {
+		log.info("==> start fuelStock : {}",fuelStock);
 		AtomicReference<Long> count = new AtomicReference<>(0L);
 		IntStream.range(0, threadCount).forEach(
 			e -> executorService.submit(

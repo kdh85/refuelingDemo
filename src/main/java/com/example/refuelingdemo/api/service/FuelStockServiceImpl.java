@@ -31,12 +31,15 @@ public class FuelStockServiceImpl implements FuelStockService {
 		//JPA 변경감지를 통해 자동으로 update 쿼리가 발생.
 		fuelStock.decreaseStock(useQuantity);
 		log.info("### call decreaseStock useQuantity:{}, fuelStock:{}", useQuantity, fuelStock);
+		fuelStockRepository.saveAndFlush(fuelStock);
 		//재고변화 내역 저장.
-		fuelStockHistoryRepository.save(
+		fuelStockHistoryRepository.saveAndFlush(
 			FuelStockHistory.decreaseStockHistory(fuelStock.getTotalStock(), fuelStock.getRemainStock(),
 				useQuantity, fuelStock));
 	}
 
+
+	@Transactional
 	protected FuelStock getCurrentFuelStockById(Long id) {
 		return fuelStockRepository.findById(id)
 			.orElseThrow(() -> new RuntimeException("no data found"));
@@ -47,7 +50,7 @@ public class FuelStockServiceImpl implements FuelStockService {
 	public FuelStock createFullStock(final Long totalStock) {
 		FuelStock save = fuelStockRepository.save(FuelStock.fullStock(totalStock));
 		//재고 생성내역 저장.
-		fuelStockHistoryRepository.save(
+		fuelStockHistoryRepository.saveAndFlush(
 			FuelStockHistory.createNewStockHistory(save.getTotalStock(), save.getRemainStock(), save));
 		return save;
 	}
@@ -58,6 +61,7 @@ public class FuelStockServiceImpl implements FuelStockService {
 		return getCurrentFuelStockById(id);
 	}
 
+	@Transactional
 	@Override
 	public void deleteAllStock() {
 		fuelStockRepository.deleteAll();
